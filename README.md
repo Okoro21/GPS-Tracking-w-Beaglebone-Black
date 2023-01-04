@@ -1,1 +1,1 @@
-# GPS-Tracking-w-Beaglebone-Black
+# GPS Tracking w Beaglebone Black
