@@ -43,23 +43,90 @@ class GPS:
          SEND_NOTHING = b'$PMTK314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28\r\n'
          #Send Nothing
 
-         ser.write(UPDATE_200_msec)
+         ser.write(UPDATE_1_sec)
          sleep(1)
-         ser.write(MEAS_200_msec)
+         ser.write(MEAS_1_sec)
          sleep(1)
-         ser.write(GPRMC_GPGGA)
+         ser.write(GPRMC_GPGGA) #Asking only for GPGGA and GPRMC sentances
          sleep(1)
          print("GPS Initialized")
+         ser.flushInput() #clears input buffer
+         ser.flushInput()
 
-myGPS = GPS()
-#Instantiating a GPS object 
+    def read(self):
+        ser.flushInput()
+        ser.flushInput()
+        while ser.inWaiting() == 0:
+            pass
+        self.NMEA1 = ser.readline()
+        while ser.inWaiting == 0:
+            pass
+        self.NMEA2 = ser.readline()
+        NMEA1_array = self.NMEA1.split(b',') 
+        NMEA2_array = self.NMEA2.split(b',')
+        
+        if NMEA1_array[0] == b'$GPRMC':
+                self.utc_hours = NMEA1_array[1][:-8]
+                self.utc_mins = NMEA1_array[1][-8:-6]
+                self.utc_sec = NMEA1_array[1][-6:-3]
+                self.latDeg = NMEA1_array[3][:-7]
+                self.latMin = NMEA1_array[3][-7:]
+                self.latHemi = NMEA1_array[4]
+                self.lonDeg = NMEA1_array[5][:-7]
+                self.lonMin = NMEA1_array[5][-7:] #Longitude minutes as a decimal number
+                self.lonHemi = NMEA1_array[6] #Longitude Hemisphere
+                self.knots = NMEA1_array[7] #Speed in Knots
+        if NMEA1_array[0] == b'$GPGGA':
+                self.fix = NMEA1_array[6] 
+                print("My fix is:", self.fix)
+                self.altitude = NMEA1_array[9] #Altitude above sea level in meters
+                self.sats = NMEA1_array[7] #Number of satilities that are being tracked 
+        
+        if NMEA2_array[0] == b'$GPRMC':
+                self.utc_hours = NMEA2_array[1][:-8]
+                self.utc_mins = NMEA2_array[1][-8:-6]
+                self.utc_sec = NMEA2_array[1][-6:-3]
+                self.latDeg = NMEA2_array[3][:-7]
+                self.latMin = NMEA2_array[3][-7:]
+                self.latHemi = NMEA2_array[4]
+                self.lonDeg = NMEA2_array[5][:-7]
+                self.lonMin = NMEA2_array[5][-7:] #Longitude minutes as a decimal number
+                self.lonHemi = NMEA2_array[6] #Longitude Hemisphere
+                self.knots = NMEA2_array[7] #Speed in Knots
+        if NMEA2_array[0] == b'$GPGGA':
+                self.fix = NMEA2_array[6] 
+                print("My fix is:", self.fix)
+                self.altitude = NMEA2_array[9] #Altitude above sea level in meters
+                self.sats = NMEA2_array[7] #Number of satilities that are being tracked 
+
+
+myGPS = GPS() #Instantiating a GPS object 
 while(1):
-    ser.flushInput() #clears out the input buffer
-    ser.flushInput()
-    while ser.inWaiting() == 0:
-        pass
-    NMEA1 = ser.readline()
-    NMEA2 = ser.readline()
-    print(NMEA1)
-    print(NMEA2)
+    myGPS.read()
+    print(myGPS.NMEA1)
+    print(myGPS.NMEA2)
+    if (myGPS.fix) != 0:
+        print(b"Universal Time: ", myGPS.utc_hours + b':' + myGPS.utc_mins + myGPS.utc_sec)
+        print(b"Currently tracking:", myGPS.sats, b"satellites")
+        print(b"Current Latitutde", myGPS.latDeg, b"Degrees", myGPS.latMin, b"Minutes", myGPS.latHemi, b"Hemisphere")
+        print(b"Current Longitude:", myGPS.lonDeg, b"Degrees", myGPS.lonMin, b"Minutes", myGPS.lonHemi, b"Hemisphere")
+        print(b"Speed (knots):", myGPS.knots)
+        print(b"Current Altitude:", myGPS.altitude)
+
+            
     
+
+
+
+   # ser.flushInput() #clears out the input buffer
+   # ser.flushInput()
+   # while ser.inWaiting() == 0:
+    #    pass
+    # print(myGPS.utc_hours)
+    # print(myGPS.utc_mins)
+    # NMEA1 = ser.readline()
+    # NMEA2 = ser.readline()
+    # print(NMEA1)
+    # print(NMEA2)
+    # print(utc_hours)
+    # print(utc_mins)
