@@ -118,15 +118,3 @@ while(1):
 
 
 
-   # ser.flushInput() #clears out the input buffer
-   # ser.flushInput()
-   # while ser.inWaiting() == 0:
-    #    pass
-    # print(myGPS.utc_hours)
-    # print(myGPS.utc_mins)
-    # NMEA1 = ser.readline()
-    # NMEA2 = ser.readline()
-    # print(NMEA1)
-    # print(NMEA2)
-    # print(utc_hours)
-    # print(utc_mins)
